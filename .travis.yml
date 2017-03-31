@@ -1,0 +1,47 @@
+language: cpp
+sudo: required
+dist: trusty
+compiler:
+- g++
+os:
+- linux
+
+addons:
+    apt:
+        sources:
+            - ubuntu-toolchain-r-test
+        packages:
+            - gcc-5
+            - g++-5
+
+
+branches:
+  only:
+  - master
+
+before_install:
+    - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-5 50
+
+install:
+    # Installing lcov
+    - cd ${TRAVIS_BUILD_DIR}
+    - sudo make install
+    - cd ..
+    # Checking versions
+    - g++ --version
+
+script: ./travis_build.sh
+
+after_success:
+    # Creating report
+  - cd ${TRAVIS_BUILD_DIR}
+  - cd mysql-test
+  ./run.mtr.tokudb.bash
+
+notifications:
+  email:
+    - overred.shuttler@gmail.com
+
+env:
+  global:
+  - LANG="en_US.UTF-8"
